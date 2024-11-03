@@ -1,0 +1,6 @@
+{
+  "_id": "<MongoDB ObjectId>",
+  "codigo": "xxxx",
+  "premio": 1000000,
+  "activo": true
+}
