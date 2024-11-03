@@ -4,11 +4,11 @@ const signoController = require('./controllers/signoController.js');
 
 // Definición de rutas
 router
-    .get('/view', signoController.view)
+    .get('/viewUser', signoController.viewUser)
     .get('/getCodes', signoController.getCodes)
     .patch('/redeemCode', signoController.redeemCode)
     .post('/login', signoController.login)
-    .post('/addUser', signoController.addUser)
+    .post('/addUser', signoController.addUser);
     
 
 module.exports = router;

@@ -64,8 +64,6 @@ const redeemCode = async (req, res) => {
 };
 
 
-
-
 const addUser = async (req, res) => {
     const { username, fechaNacimiento, cedula, correo, celular, ciudad, password, role } = req.body;
 
@@ -89,7 +87,7 @@ const addUser = async (req, res) => {
     }
 };
 
-const view = async (filter = {}) => {
+const viewUser = async (filter = {}) => {
     try {
         const codigosFiltrados = await collections.Codigo.find({activo:false});
         const ganadoresFiltrados = await collections.Usuario.find({ _id: { $in: codigosFiltrados.map((codigo => codigo.userId.toString())) } })
@@ -113,5 +111,5 @@ module.exports = {
     redeemCode,
     login,
     addUser,
-    view
+    viewUser
 };
