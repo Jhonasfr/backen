@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 // URL de conexión con tus credenciales
-const uri = "mongodb+srv://steban1:oNPck0VZg4r0pgkM@cluster0.m0cif.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0";
+const uri = "mongodb+srv://carlos:MYVq68z5rrME2lWN@jhonasfr.8eafn.mongodb.net/?retryWrites=true&w=majority&appName=jhonasfr";
 
 mongoose.connect(uri, {
   useNewUrlParser: true,
@@ -11,12 +11,18 @@ mongoose.connect(uri, {
 .catch((err) => console.error("Error al conectar con MongoDB Atlas:", err));
 
 const codigoSchema = new mongoose.Schema({
-    codigo: String,
+    codigo: Number,
     premio: Number,
-    activo: Boolean
-});
+    activo: Boolean,
+    fechaRegistro: Date,
+    userId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'users'  
+      }
+}, { versionKey: false });
 
 const Codigo = mongoose.model("codigos", codigoSchema);
+
 
 const usuariosSchema = new mongoose.Schema({
     username: String,
@@ -28,6 +34,17 @@ const usuariosSchema = new mongoose.Schema({
     password: String,
     role: String
 });
+
+usuariosSchema.pre('save', async function(next) {
+    console.log("si")
+    if (!this.isModified('password')) return next(); 
+    const saltRounds = 10; 
+    const hash = await bcrypt.hash(this.password, saltRounds);
+    this.password = hash; 
+    next();
+  });
+
+
 
 const Usuario = mongoose.model("user", usuariosSchema);
 
