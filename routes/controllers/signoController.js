@@ -7,7 +7,7 @@ const collections = require('../models/collections.js')
 const login = async (req, res) => {
     const userFilePath = path.join(__dirname, '../../db/user.json');
     const adminFilePath = path.join(__dirname, '../../db/admin.json');
-    const { username, password } = req.body;
+    const { username, password } = req.body;ñ
     try {
         const userData = await fs.readFile(userFilePath, 'utf-8');
         const adminData = await fs.readFile(adminFilePath, 'utf-8');
