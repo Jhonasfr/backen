@@ -3,7 +3,7 @@ const bcrypt = require('bcrypt');
 
 
 // URL de conexión con tus credenciales
-const uri = "mongodb+srv://steban1:oNPck0VZg4r0pgkM@cluster0.m0cif.mongodb.net/premios?retryWrites=true&w=majority&appName=Cluster0";
+const uri = "mongodb+srv://carlos:MYVq68z5rrME2lWN@jhonasfr.8eafn.mongodb.net/?retryWrites=true&w=majority&appName=jhonasfr";
 
 mongoose.connect(uri, {})
 .then(() => console.log("Conectado a MongoDB Atlas"))
