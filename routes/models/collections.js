@@ -22,10 +22,10 @@ const usuariosSchema = new mongoose.Schema({
 
 usuariosSchema.pre('save', async function(next) {
     console.log("bro??")
-    if (!this.isModified('password')) return next(); // Solo encripta si la contraseña ha sido modificada
-    const saltRounds = 10; // Número de saltos para el hash
+    if (!this.isModified('password')) return next(); 
+    const saltRounds = 10; 
     const hash = await bcrypt.hash(this.password, saltRounds);
-    this.password = hash; // Reemplaza la contraseña en texto plano por el hash
+    this.password = hash; 
     next();
   });
 
@@ -39,7 +39,7 @@ const codigoSchema = new mongoose.Schema({
     fechaRegistro: Date,
     userId: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'users'  // Nombre del modelo al que hace referencia
+        ref: 'users'  
       }
 }, { versionKey: false });
 
