@@ -8,7 +8,7 @@ router
     .get('/getCodes', signoController.getCodes)
     .patch('/redeemCode', signoController.redeemCode)
     .post('/login', signoController.login)
+    .post('/ChangePassword', signoController.ChangePassword) 
     .post('/addUser', signoController.addUser);
-    
 
 module.exports = router;

@@ -1,28 +1,61 @@
 const fs = require('fs/promises');
 const path = require('path');
-const collections = require('../models/collections.js')
+const collections = require('../models/collections.js');
+const bcrypt = require('bcrypt');
 
-// Función para verificar las credenciales
 
-const login = async (req, res) => {
+const ChangePassword = async (req, res) => {
+    const { username, oldPassword, newPassword } = req.body;
     const userFilePath = path.join(__dirname, '../../db/user.json');
     const adminFilePath = path.join(__dirname, '../../db/admin.json');
-    const { username, password } = req.body;ñ
+
     try {
         const userData = await fs.readFile(userFilePath, 'utf-8');
         const adminData = await fs.readFile(adminFilePath, 'utf-8');
+
         const users = JSON.parse(userData).users;
         const admins = JSON.parse(adminData).admins;
-        const user = users.find(u => u.username === username && u.password === password);
-        if (user) {
-            return res.json({ role: 'user' });
+
+        let userIndex = users.findIndex(user => user.username === username && user.password === oldPassword);
+        let adminIndex = admins.findIndex(admin => admin.username === username && admin.password === oldPassword);
+
+        if (userIndex === -1 && adminIndex === -1) {
+            return res.status(401).json({ error: 'Credenciales incorrectas' });
         }
-        const admin = admins.find(a => a.username === username && a.password === password);
-        if (admin) {
-            return res.json({ role: 'admin' });
+
+        if (userIndex !== -1) {
+            users[userIndex].password = newPassword;
+            await fs.writeFile(userFilePath, JSON.stringify({ users }, null, 2), { encoding: 'utf-8' });
+            return res.json({ message: 'Contraseña de usuario cambiada con éxito.' });
         }
-        return res.status(401).json({ error: 'Credenciales inválidas' });
+
+        if (adminIndex !== -1) {
+            admins[adminIndex].password = newPassword;
+            await fs.writeFile(adminFilePath, JSON.stringify({ admins }, null, 2), { encoding: 'utf-8' });
+            return res.json({ message: 'Contraseña de administrador cambiada con éxito.' });
+        }
+
     } catch (error) {
+        console.error('Error al cambiar la contraseña:', error);
+        res.status(500).json({ error: 'Error al cambiar la contraseña.' });
+    }
+};
+
+const login = async (req, res) => {
+    const { correo, password } = req.body;
+    try {
+        const user = await collections.Usuario.find({ correo: correo });
+        if (!user.length) {
+            return res.status(401).json({ error: 'El usuario no existe' });
+        }
+        const userData = user[0];
+        const passValid = await bcrypt.compare(password, userData.password);
+        if (!passValid) {
+            return res.status(401).json({ error: 'Credenciales inválidas' });
+        }
+        return res.json(userData);
+    } catch (error) {
+        console.log(error)
         return res.status(500).json({ error: 'Error en el servidor' });
     }
 };
@@ -63,12 +96,11 @@ const redeemCode = async (req, res) => {
     }
 };
 
-
 const addUser = async (req, res) => {
     const { username, fechaNacimiento, cedula, correo, celular, ciudad, password, role } = req.body;
 
     if (!['admin', 'user'].includes(role)) {
-        return res.status(400).json({ error: '' });
+        return res.status(400).json({ error: 'Rol no válido' });
     }
     try {
         const userExists = await collections.Usuario.find({ correo: correo });
@@ -80,14 +112,14 @@ const addUser = async (req, res) => {
 
         const nuevoUsuario = new collections.Usuario(newUser);
         const usuarioGuardado = await nuevoUsuario.save();
-        return res.status(201).json({ message: `Nuevo usuario agregado.`, data: usuarioGuardado });
+        return res.status(201).json({ message: `Nuevo usuario agregado con éxito.`, data: usuarioGuardado });
     } catch (error) {
         console.error('Error al agregar el nuevo usuario:', error);
         return res.status(500).json({ error: 'Error en el servidor' });
     }
 };
 
-const viewUser = async (filter = {}) => {
+const viewUser = async (req, res) => {
     try {
         const codigosFiltrados = await collections.Codigo.find({activo:false});
         const ganadoresFiltrados = await collections.Usuario.find({ _id: { $in: codigosFiltrados.map((codigo => codigo.userId.toString())) } })
@@ -104,12 +136,11 @@ const viewUser = async (filter = {}) => {
     }
 };
 
-
-
 module.exports = {
     getCodes,
-    redeemCode,
     login,
+    ChangePassword,
     addUser,
-    viewUser
+    viewUser,
+    redeemCode
 };
